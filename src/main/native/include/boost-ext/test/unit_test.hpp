@@ -1,6 +1,10 @@
 #include "boost/test/unit_test.hpp"
 #include "boost/test/parameterized_test.hpp"
 
+#if !defined(BOOST_UNIT_TEST_NO_TEAMCITY)
+    #include "boost-ext/test/teamcity_boost.hpp"
+#endif
+
 //____________________________________________________________________________//
 
 // ************************************************************************** //

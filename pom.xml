@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     
     <!-- Project Information -->
-    <name>Boost-Ext</name>
+    <name>Boost-Ext Libraries</name>
     <groupId>com.toonetown.maven</groupId>
     <artifactId>boost-ext</artifactId>
     <version>1.0-SNAPSHOT</version>
     
-    <!-- Packaging is lib (but we are headers only) -->
+    <!-- Packaging is lib -->
     <packaging>lib</packaging>
 
 	<!-- Parent POM - the native-oat files -->
@@ -23,7 +23,10 @@
 	</parent>
         
     <properties>
-        <!-- The version of boost we are building/testing against -->
+        <!-- This is a lib project, so we set native.oat.phase.default-lib -->
+        <native.oat.phase.default-lib>compile</native.oat.phase.default-lib>
+
+        <!-- The version of boost we are building/linking/testing against -->
         <version.boost>1.55.0-SNAPSHOT</version.boost>
     </properties>
 

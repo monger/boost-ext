@@ -1,6 +1,26 @@
 #Boost-Ext Library
 
-These are header-only includes (packaged as an oat inczip) which add some common functionality to the boost library.
+These are libraries which add some common functionality to the boost library.
+
+This project depends upon the [maven-native-oat](https://github.com/toonetown/maven-native-oat) project to build.
+
+You may want to deploy these files like this:
+
+    mvn clean package
+    for i in i386 ppc; do mvn -Dnative.os=macosx -Dnative.arch=${i} package -Dnative.oat.skipInczip=true; done
+    mvn deploy:deploy-file \
+        -Dfile=pom.xml \
+        -Dpackaging=pom \
+        -Dfiles=target/boost-ext.inczip,\
+                target/boost-ext-1.0-SNAPSHOT-macosx-x86_64.lib,\
+                target/boost-ext-1.0-SNAPSHOT-macosx-i386.lib,\
+                target/boost-ext-1.0-SNAPSHOT-macosx-ppc.lib \
+        -Dtypes=inczip,lib,lib,lib \
+        -Dclassifiers=,macosx-x86_64,macosx-i386,macosx-ppc \
+        -DpomFile=pom.xml \
+        -Durl=<deployURL> \
+        -DrepositoryId=<repoId>
+
 
 ### boost-ext/test/unit_test.hpp
 
@@ -47,3 +67,11 @@ that will run multiple times with a parameter set).  For example:
     BOOST_AUTO_TEST_SUITE_END ();
     
 
+### Boost Teamcity Library
+
+These are just a repackaging of the libraries at https://github.com/JetBrains/teamcity-cpp/tree/master/boost for 
+integrating boost unit tests with TeamCity.  Just include `boost-ext/test/unit_test.hpp` after setting the 
+`BOOST_TEST_MODULE` macro, and then include this library as a dependency with scope `test` in order to have these tests 
+output in a TeamCity-friendly format when running under TeamCity.  If you would like to include 
+`boost-ext/test/unit_test.hpp` without linking in the TeamCity library, define `BOOST_UNIT_TEST_NO_TEAMCITY` before
+including the file.
