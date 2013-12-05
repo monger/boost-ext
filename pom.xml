@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <!-- Project Information -->
+    <name>Boost-Ext</name>
+    <groupId>com.toonetown.maven</groupId>
+    <artifactId>boost-ext</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    
+    <!-- Packaging is lib (but we are headers only) -->
+    <packaging>lib</packaging>
+
+	<!-- Parent POM - the native-oat files -->
+	<parent>
+        <groupId>com.toonetown.maven</groupId>
+        <artifactId>native-oat</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <!-- Empty relative path so that the reactor doesn't complain -->
+        <relativePath></relativePath>
+	</parent>
+        
+    <properties>
+        <!-- The version of boost we are building/testing against -->
+        <version.boost>1.55.0-SNAPSHOT</version.boost>
+    </properties>
+
+    <dependencies>
+        <!-- Boost headers (for test scope) -->
+        <dependency>
+            <groupId>com.toonetown.maven</groupId>
+            <artifactId>boost</artifactId>
+            <type>inczip</type>
+            <version>${version.boost}</version>
+        </dependency>
+        <!-- Boost test framework -->
+        <dependency>
+            <groupId>com.toonetown.maven.boost.test</groupId>
+            <artifactId>unit_test_framework</artifactId>
+            <type>lib</type>
+            <classifier>${native.oat.classifier}</classifier>
+            <version>${version.boost}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+					<execution>
+                        <!-- Overrides for boost tests -->
+						<id>default-test</id>
+                        <configuration>
+                            <arguments>
+                                <argument>--log_level=test_suite</argument>
+                            </arguments>
+                        </configuration>
+					</execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    
+</project>
