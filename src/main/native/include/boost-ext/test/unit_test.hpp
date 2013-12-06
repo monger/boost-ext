@@ -48,8 +48,20 @@ void test_name::test_method(val_type p)
 // ************************************************************************** //
 // **************            BOOST_AUTO_TEST_PARAMS            ************** //
 // ************************************************************************** //
-#define BOOST_AUTO_TEST_PARAMS( test_name, val_type)              \
+#define BOOST_AUTO_TEST_PARAMS( test_name, val_type)                    \
 static val_type BOOST_AUTO_TC_PARAMS( test_name )[] =
+
+//____________________________________________________________________________//
+
+// ************************************************************************** //
+// **************        BOOST_AUTO_PARAM_TEST_CASE_DATA       ************** //
+// ************************************************************************** //
+#define BOOST_AUTO_PARAM_TEST_CASE_DATA( test_name, data, val_type, p ) \
+BOOST_FIXTURE_PARAM_TEST_CASE( test_name,                               \
+                               val_type, p,                             \
+                               data,                                    \
+                               BOOST_AUTO_PARAM_SIZE(data),             \
+                               BOOST_AUTO_TEST_CASE_FIXTURE )
 
 //____________________________________________________________________________//
 
@@ -57,10 +69,6 @@ static val_type BOOST_AUTO_TC_PARAMS( test_name )[] =
 // **************          BOOST_AUTO_PARAM_TEST_CASE          ************** //
 // ************************************************************************** //
 #define BOOST_AUTO_PARAM_TEST_CASE( test_name, val_type, p )            \
-BOOST_FIXTURE_PARAM_TEST_CASE( test_name,                               \
-                               val_type, p,                             \
-                               BOOST_AUTO_TC_PARAMS( test_name ),       \
-                               BOOST_AUTO_PARAM_SIZE(                   \
-                                   BOOST_AUTO_TC_PARAMS( test_name )    \
-                               ),                                       \
-                               BOOST_AUTO_TEST_CASE_FIXTURE )
+BOOST_AUTO_PARAM_TEST_CASE_DATA( test_name,                             \
+                                 BOOST_AUTO_TC_PARAMS( test_name ),     \
+                                 val_type, p )
