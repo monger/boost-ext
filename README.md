@@ -7,16 +7,15 @@ This project depends upon the [maven-native-oat](https://github.com/toonetown/ma
 You may want to deploy these files like this:
 
     mvn clean package
-    for i in i386 ppc; do mvn -Dnative.os=macosx -Dnative.arch=${i} package -Dnative.oat.skipInczip=true; done
+    mvn -Dnative.os=macosx -Dnative.arch=i386 package -Dnative.oat.skipInczip=true
     mvn deploy:deploy-file \
         -Dfile=pom.xml \
         -Dpackaging=pom \
         -Dfiles=target/boost-ext.inczip,\
                 target/boost-ext-1.0-SNAPSHOT-macosx-x86_64.lib,\
-                target/boost-ext-1.0-SNAPSHOT-macosx-i386.lib,\
-                target/boost-ext-1.0-SNAPSHOT-macosx-ppc.lib \
-        -Dtypes=inczip,lib,lib,lib \
-        -Dclassifiers=,macosx-x86_64,macosx-i386,macosx-ppc \
+                target/boost-ext-1.0-SNAPSHOT-macosx-i386.lib \
+        -Dtypes=inczip,lib,lib \
+        -Dclassifiers=,macosx-x86_64,macosx-i386 \
         -DpomFile=pom.xml \
         -Durl=<deployURL> \
         -DrepositoryId=<repoId>
