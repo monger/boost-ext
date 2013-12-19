@@ -42,6 +42,11 @@ namespace boost_ext {
     static T trim_split(const char *s, const std::string& chars = "\t, ") {
         return boost_ext::trim_split<T>((std::string) (s ? s : ""), chars);
     }
+    
+    /** Extension for boost::assign which will convert to a vector of the given type */
+    #define ASSIGN_CAST(c)      convert_to_container< c >()
+    #define ASSIGN_VECTOR(t)    ASSIGN_CAST(std::vector< t >)
+    #define ASSIGN_SET(t)       ASSIGN_CAST(std::set< t >)
 }
 
 #endif
