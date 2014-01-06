@@ -72,6 +72,12 @@ using namespace boost;
         }
         return pData;
     }
+    inline NSData* ToNSData(const byte_vector& vec) {
+        if (vec.empty() > 0) {
+            return [NSData data];
+        }
+        return [NSData dataWithBytes:(&vec.front()) length:vec.size()];
+    }
 
     /** Creates an NSString from the given string */
     inline NSString* ToNSString(const char *pszStr) { return [NSString stringWithUTF8String:pszStr]; }
