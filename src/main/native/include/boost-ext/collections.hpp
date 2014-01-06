@@ -5,12 +5,14 @@
 #include <vector>
 #include <string>
 
+#include "boost/cstdint.hpp"
 #include "boost/algorithm/string.hpp"
 #include "boost/foreach.hpp"
 
 namespace boost_ext {
     typedef std::set<std::string>       string_set;
     typedef std::vector<std::string>    string_vector;
+    typedef std::vector<boost::uint8_t> byte_vector;
 
     template <typename T, typename U>
     static bool contains_any(const T& v1, const U& v2) {

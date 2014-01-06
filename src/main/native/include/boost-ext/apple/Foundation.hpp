@@ -10,8 +10,7 @@
 
 #import <Foundation/Foundation.h>
 #include <string>
-#include <vector>
-#include "boost/cstdint.hpp"
+#include "boost-ext/collections.hpp"
 #include "boost-ext/scoped_type.hpp"
 
 /** Macros which allow for arc functionality */
@@ -57,7 +56,7 @@ using namespace boost;
     #undef NSO_TO_STRING
 
     /** Appends the data from pData to the given vector.  Returns the passed-in vector */
-    inline vector<uint8_t>& CopyNSDataToVector(NSData* pData, vector<uint8_t>& vec) {
+    inline byte_vector& CopyNSDataToVector(NSData* pData, byte_vector& vec) {
         if (pData != nil && [pData length] > 0) {
             uint8_t         *pBytes = (uint8_t*)([pData bytes]);
             size_t          len = [pData length];
@@ -67,7 +66,7 @@ using namespace boost;
     }
 
     /** Appends the data from the given vector into the given NSData pointer.  Returns the passed-in NSData */
-    inline NSMutableData* CopyVectorToNSData(NSMutableData* pData, const vector<uint8_t>& vec) {
+    inline NSMutableData* CopyVectorToNSData(NSMutableData* pData, const byte_vector& vec) {
         if (vec.size() > 0) {
             [pData appendBytes:(&vec.front()) length:vec.size()];
         }
