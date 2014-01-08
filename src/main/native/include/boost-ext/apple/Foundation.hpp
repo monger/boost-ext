@@ -46,10 +46,10 @@ using namespace boost;
     #define NSO_CSTR(o)    ([boost_ext::NSObjectToString(o) UTF8String])
 
     /** Safely casts an NSObject to the given class - or nil if it doesn't cast */
-    #define NSO_CAST(o, t) (([o isKindOfClass:[t class]]) ? (t*) o : nil) 
+    #define NSO_CAST(o, t) (o ? (([o isKindOfClass:[t class]]) ? (t*) o : (t*) nil) : (t*) nil) 
 
     /** Some "toString" functions on common NSObjects */
-    #define NSO_TO_STRING(t, v, r) inline NSString* NSObjectToString(t* v) { return r; }
+    #define NSO_TO_STRING(t, v, r) inline NSString* NSObjectToString(t* v) { return v == nil ? [NSString string] : r; }
     NSO_TO_STRING(NSString,          s, s)
     NSO_TO_STRING(NSError,           e, [e localizedDescription])
     NSO_TO_STRING(NSURL,             u, [u absoluteString])
@@ -57,6 +57,7 @@ using namespace boost;
     NSO_TO_STRING(NSURLConnection,   c, NSObjectToString([c currentRequest]))
     inline NSString* NSObjectToString(NSURLResponse* r) {
         /* We need more than just the default logic for reponse (we want to cast it, if possible) */
+        if (r == nil) { return [NSString string]; }
         NSHTTPURLResponse *h = NSO_CAST(r, NSHTTPURLResponse);
         return (h == nil) ? 
                     [r description] : 
