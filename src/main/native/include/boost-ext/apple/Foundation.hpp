@@ -50,14 +50,13 @@ using namespace boost;
 
     /** Some "toString" functions on common NSObjects */
     #define NSO_TO_STRING(t, v, r) inline NSString* NSObjectToString(t* v) { return r; }
-    NSO_TO_STRING(NSObject,          o, [o description])
     NSO_TO_STRING(NSString,          s, s)
     NSO_TO_STRING(NSError,           e, [e localizedDescription])
     NSO_TO_STRING(NSURL,             u, [u absoluteString])
     NSO_TO_STRING(NSURLRequest,      r, NSObjectToString([r URL]))
     NSO_TO_STRING(NSURLConnection,   c, NSObjectToString([c currentRequest]))
-    #undef NSO_TO_STRING
     inline NSString* NSObjectToString(NSURLResponse* r) {
+        /* We need more than just the default logic for reponse (we want to cast it, if possible) */
         NSHTTPURLResponse *h = NSO_CAST(r, NSHTTPURLResponse);
         return (h == nil) ? 
                     [r description] : 
@@ -65,6 +64,26 @@ using namespace boost;
                                     h.statusCode,
                                     [NSHTTPURLResponse localizedStringForStatusCode:h.statusCode]];
     }
+    NSO_TO_STRING(NSObject,          o, [o description])
+    #undef NSO_TO_STRING
+
+    inline NSString* NSObjectToString(id i) {
+        /* Nil value is an empty string */
+        if (i == nil) { return [NSString string]; }
+        
+        /* We use introspection if the type is an ID */
+        #define NSO_TRY_CAST_TOSTRING(i, t)     if ([i isKindOfClass:[t class]]) { return NSObjectToString((t*) i); }
+            NSO_TRY_CAST_TOSTRING(i, NSString);
+            NSO_TRY_CAST_TOSTRING(i, NSError);
+            NSO_TRY_CAST_TOSTRING(i, NSURL);
+            NSO_TRY_CAST_TOSTRING(i, NSURLRequest);
+            NSO_TRY_CAST_TOSTRING(i, NSURLConnection);
+            NSO_TRY_CAST_TOSTRING(i, NSURLResponse);
+        #undef NSO_TRY_CAST_TOSTRING
+        
+        return NSObjectToString((NSObject*) i);
+    }
+
 
     /** Appends the data from pData to the given vector.  Returns the passed-in vector */
     inline byte_vector& CopyNSDataToVector(NSData* pData, byte_vector& vec) {
