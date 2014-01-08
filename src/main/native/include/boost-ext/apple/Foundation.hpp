@@ -45,15 +45,26 @@ using namespace boost;
     /** Converts the given objective-c object to a c_str */
     #define NSO_CSTR(o)    ([boost_ext::NSObjectToString(o) UTF8String])
 
+    /** Safely casts an NSObject to the given class - or nil if it doesn't cast */
+    #define NSO_CAST(o, t) (([o isKindOfClass:[t class]]) ? (t*) o : nil) 
+
     /** Some "toString" functions on common NSObjects */
     #define NSO_TO_STRING(t, v, r) inline NSString* NSObjectToString(t* v) { return r; }
-    NSO_TO_STRING(NSObject,        o, [o description])
-    NSO_TO_STRING(NSString,        s, s)
-    NSO_TO_STRING(NSError,         e, [e localizedDescription])
-    NSO_TO_STRING(NSURL,           u, [u absoluteString])
-    NSO_TO_STRING(NSURLRequest,    r, NSObjectToString([r URL]))
-    NSO_TO_STRING(NSURLConnection, c, NSObjectToString([c currentRequest]))
+    NSO_TO_STRING(NSObject,          o, [o description])
+    NSO_TO_STRING(NSString,          s, s)
+    NSO_TO_STRING(NSError,           e, [e localizedDescription])
+    NSO_TO_STRING(NSURL,             u, [u absoluteString])
+    NSO_TO_STRING(NSURLRequest,      r, NSObjectToString([r URL]))
+    NSO_TO_STRING(NSURLConnection,   c, NSObjectToString([c currentRequest]))
     #undef NSO_TO_STRING
+    inline NSString* NSObjectToString(NSURLResponse* r) {
+        NSHTTPURLResponse *h = NSO_CAST(r, NSHTTPURLResponse);
+        return (h == nil) ? 
+                    [r description] : 
+                    [NSString stringWithFormat:@"HTTP %d (%@)", 
+                                    h.statusCode,
+                                    [NSHTTPURLResponse localizedStringForStatusCode:h.statusCode]];
+    }
 
     /** Appends the data from pData to the given vector.  Returns the passed-in vector */
     inline byte_vector& CopyNSDataToVector(NSData* pData, byte_vector& vec) {
