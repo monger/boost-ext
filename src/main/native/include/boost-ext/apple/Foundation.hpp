@@ -109,6 +109,34 @@ using namespace boost;
         return [NSData dataWithBytes:(&vec.front()) length:vec.size()];
     }
 
+    /** Converter which converts IDs to strings using the NSO_CSTR macro */
+    struct NSOStringConverter {
+        static NSOStringConverter& inst() { static NSOStringConverter _n; return _n; }
+        std::string operator() (const id i) const { return NSO_CSTR(i); }
+    };
+    
+    /** 
+     * Adds the data from pDictionary to the given map-like object.  Returns the passed-in map.  The converters
+     * should have a function which has the following signature (see NSOStringConverter for an implementation):
+     *    RET_TYPE operator() (const id i) const;
+     */
+    template<typename T, typename K, typename V> 
+    inline T& CopyNSDictionaryToMap(NSDictionary* pDictionary, T& map, const K& keyConv, const V& valConv) {
+        NSEnumerator    *enumerator = [pDictionary keyEnumerator];
+        id              key;
+        while ((key = [enumerator nextObject])) {
+            id  value = [pDictionary objectForKey:key];
+            map[keyConv(key)] = valConv(value);
+        }
+        return map;
+    }
+    /** Default versions for various key and value converters */
+    #define NSDICT_TO_MAP(k, v) template<typename T> inline T& CopyNSDictionaryToMap(NSDictionary* d, T& m) {   \
+        return CopyNSDictionaryToMap(d, m, k::inst(), v::inst());                                               \
+    }
+    NSDICT_TO_MAP(NSOStringConverter, NSOStringConverter)
+    #undef NSDICT_TO_MAP
+
     /** Creates an NSString from the given string */
     inline NSString* ToNSString(const char *pszStr) { return [NSString stringWithUTF8String:pszStr]; }
     inline NSString* ToNSString(const string& str) { return ToNSString(str.c_str()); }
