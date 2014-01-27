@@ -25,7 +25,6 @@
 #include "boost-ext/test/teamcity_messages.hpp"
 
 using namespace boost::unit_test;
-using namespace std;
 
 namespace JetBrains {
 
@@ -35,29 +34,67 @@ class TeamcityBoostLogFormatter: public boost::unit_test::unit_test_log_formatte
     std::string currentDetails;
     std::string flowId;
     
-public:
-    TeamcityBoostLogFormatter(const std::string &_flowId);
-    TeamcityBoostLogFormatter();
+    std::string toString(const_string bstr) { std::stringstream ss; ss << bstr; return ss.str(); }
     
-    void log_start(std::ostream&, boost::unit_test::counter_t test_cases_amount);
-    void log_finish(std::ostream&);
-    void log_build_info(std::ostream&);
+public:
+    TeamcityBoostLogFormatter(const std::string &_flowId) : flowId(_flowId) {}
+    TeamcityBoostLogFormatter() : flowId(getFlowIdFromEnvironment()) {}
+    
+    void log_start(std::ostream&, boost::unit_test::counter_t test_cases_amount) {}
+    void log_finish(std::ostream&) {}
+    void log_build_info(std::ostream&) {}
 
-    void test_unit_start(std::ostream&, boost::unit_test::test_unit const& tu);
-    void test_unit_finish(std::ostream&,
-        boost::unit_test::test_unit const& tu,
-        unsigned long elapsed);
-    void test_unit_skipped(std::ostream&, boost::unit_test::test_unit const& tu);
+    void test_unit_start(std::ostream &out, boost::unit_test::test_unit const& tu) {
+        messages.setOutput(out);
 
-    void log_exception(std::ostream&,
-        boost::unit_test::log_checkpoint_data const&,
-        boost::unit_test::const_string explanation);
+        if (tu.p_type == tut_case) {
+            messages.testStarted(tu.p_name, flowId);
+        } else {
+            messages.suiteStarted(tu.p_name, flowId);
+        }
+    
+        currentDetails.clear();
+    }
+    void test_unit_finish(std::ostream &out, boost::unit_test::test_unit const& tu, unsigned long elapsed) {
+        messages.setOutput(out);
 
-    void log_entry_start(std::ostream&,
-        boost::unit_test::log_entry_data const&,
-        log_entry_types let);
-    void log_entry_value(std::ostream&, boost::unit_test::const_string value);
-    void log_entry_finish(std::ostream&);
+        test_results const& tr = results_collector.results(tu.p_id);
+        if (tu.p_type == tut_case) {
+            if(!tr.passed()) {
+                if(tr.p_skipped) {
+                    messages.testIgnored(tu.p_name, "ignored", flowId);
+                } else if (tr.p_aborted) {
+                    messages.testFailed(tu.p_name, "aborted", currentDetails, flowId);
+                } else {
+                    messages.testFailed(tu.p_name, "failed", currentDetails, flowId);
+                }
+            }
+        
+            messages.testFinished(tu.p_name, elapsed / 1000, flowId);
+        } else {
+            messages.suiteFinished(tu.p_name, flowId);
+        }
+    }
+    void test_unit_skipped(std::ostream&, boost::unit_test::test_unit const& tu) {}
+
+    void log_exception(std::ostream &out,
+                       boost::unit_test::log_checkpoint_data const&,
+                       boost::unit_test::const_string explanation) {
+        std::string what = toString(explanation);
+    
+        out << what << std::endl;
+        currentDetails += what + "\n";
+    }
+
+    void log_entry_start(std::ostream&, boost::unit_test::log_entry_data const&, log_entry_types let) {}
+    void log_entry_value(std::ostream &out, boost::unit_test::const_string value) {
+        out << value;
+        currentDetails += toString(value);
+    }
+    void log_entry_finish(std::ostream &out) {
+        out << std::endl;
+        currentDetails += "\n";
+    }
 };
 
 // Fake fixture to register formatter

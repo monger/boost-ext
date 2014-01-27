@@ -1,25 +1,8 @@
 #Boost-Ext Library
 
-These are libraries which add some common functionality to the boost library.
+These are header-only libraries which add some common functionality to the boost library.
 
 This project depends upon the [maven-native-oat](https://github.com/toonetown/maven-native-oat) project to build.
-
-You may want to deploy these files like this:
-
-    mvn clean package
-    mvn -Dnative.os=macosx -Dnative.arch=i386 package -Dnative.oat.skipInczip=true
-    mvn deploy:deploy-file \
-        -Dfile=pom.xml \
-        -Dpackaging=pom \
-        -Dfiles=target/boost-ext.inczip,\
-                target/boost-ext-1.0-SNAPSHOT-macosx-x86_64.lib,\
-                target/boost-ext-1.0-SNAPSHOT-macosx-i386.lib \
-        -Dtypes=inczip,lib,lib \
-        -Dclassifiers=,macosx-x86_64,macosx-i386 \
-        -DpomFile=pom.xml \
-        -Durl=<deployURL> \
-        -DrepositoryId=<repoId>
-
 
 ### boost-ext/test/unit_test.hpp
 

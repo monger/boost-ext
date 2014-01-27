@@ -10,7 +10,7 @@
     <artifactId>boost-ext</artifactId>
     <version>1.0-SNAPSHOT</version>
     
-    <!-- Packaging is lib -->
+    <!-- Packaging is lib (but we are headers only) -->
     <packaging>lib</packaging>
 
 	<!-- Parent POM - the native-oat files -->
@@ -23,11 +23,11 @@
 	</parent>
         
     <properties>
-        <!-- This is a lib project, so we set native.oat.phase.default-lib -->
-        <native.oat.phase.default-lib>compile</native.oat.phase.default-lib>
-
         <!-- The version of boost we are building/linking/testing against -->
         <version.boost>1.55.0-SNAPSHOT</version.boost>
+
+        <!-- We run with suite test logging -->
+        <native.exec.args>--log_level=test_suite</native.exec.args>
     </properties>
 
     <dependencies>
@@ -54,17 +54,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <executions>
-					<execution>
-                        <!-- Overrides for boost tests -->
-						<id>default-test</id>
-                        <configuration>
-                            <arguments>
-                                <argument>--log_level=test_suite</argument>
-                            </arguments>
-                        </configuration>
-					</execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

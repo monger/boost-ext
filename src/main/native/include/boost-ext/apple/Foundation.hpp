@@ -36,7 +36,6 @@
 
 
 namespace boost_ext {
-using namespace std;
 using namespace boost;
 
     /** Call this macro to cast an objective-c object pointer */
