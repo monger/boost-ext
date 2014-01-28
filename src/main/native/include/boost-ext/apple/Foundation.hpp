@@ -139,7 +139,7 @@ using namespace boost;
 
     /** Creates an NSString from the given string */
     inline NSString* ToNSString(const char *pszStr) { return [NSString stringWithUTF8String:pszStr]; }
-    inline NSString* ToNSString(const string& str) { return ToNSString(str.c_str()); }
+    inline NSString* ToNSString(const std::string& str) { return ToNSString(str.c_str()); }
 
     /** Creates an NSURL from the given string */
     template<typename T> inline NSURL* ToNSURL(const T& str) { return [NSURL URLWithString:ToNSString(str)]; }
