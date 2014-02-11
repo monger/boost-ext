@@ -30,8 +30,8 @@
 #define ANDROID_JNI_START_NOTRY(T)                                                                      \
     {                                                                                                   \
         using namespace jace::proxy;                                                                    \
-        boost_ext::auto_read_lock  __guard(AndroidJni::inst<T>().mtx());                                \
-        if (!AndroidJni::inst<T>().initialized()) {                                                     \
+        boost_ext::auto_read_lock  __guard(boost_ext::AndroidJni::inst<T>().mtx());                     \
+        if (!boost_ext::AndroidJni::inst<T>().initialized()) {                                          \
             BOOST_THROW_EXCEPTION(boost_ext::exception("JNI Not Initialized"));                         \
         }
 
