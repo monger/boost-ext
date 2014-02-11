@@ -45,7 +45,6 @@
     ANDROID_JNI_END_NOTRY()
 
 namespace boost_ext {
-using namespace std;
 using namespace boost;
 
     template <typename T>
@@ -136,8 +135,6 @@ using namespace boost;
         shared_ptr<jace::DefaultVmLoader>   m_loader;
         shared_ptr<const T>                 m_ctx;
     };
-
-    void runTest();
 }
 
 #endif /* _AndroidJni_h_ */
