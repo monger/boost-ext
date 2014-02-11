@@ -78,7 +78,7 @@ using namespace boost;
         shared_mutex& mtx() { return m_mtx; }
 
         /** Initializes the JNI environment with a specific JVM and a context */
-        bool initialize(JavaVM *pJvm, shared_ptr<T> ctx = shared_ptr<T>()) {
+        virtual bool initialize(JavaVM *pJvm, shared_ptr<T> ctx = shared_ptr<T>()) {
             auto_upgrade_lock           upGuard(m_mtx);
             if (jace::getJavaVm()) { return false; }
             /* Upgrade our lock to be a writeable one, and then set our values */
@@ -98,7 +98,7 @@ using namespace boost;
         }
 
         /** Initializes the JNI environment with a newly-created JVM */
-        bool initialize(shared_ptr<T> ctx = shared_ptr<T>()) {
+        virtual bool initialize(shared_ptr<T> ctx = shared_ptr<T>()) {
             auto_upgrade_lock           upGuard(m_mtx);
             if (jace::getJavaVm()) { return false; }
             /* Upgrade our lock to be a writeable one, and then set our values */
