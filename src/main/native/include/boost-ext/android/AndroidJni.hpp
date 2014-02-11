@@ -15,20 +15,31 @@
 
 #include "android/log.h"
 
+/** Define this macro before including AndroidJni.hpp to use your own (subclassed) JNI */
+#ifndef JNI_CLASS
+    #define JNI_CLASS   boost_ext::AndroidJni
+#endif
+
 /** Call these macros to start/end a JVM section */
-#define ANDROID_JNI_START_NOTRY(t)                                                                      \
+#define JNI_INITIALIZE(...) boost_ext::AndroidJni::inst<JNI_CLASS>().initialize(__VA_ARGS__)
+#define JNI_START()         ANDROID_JNI_START(JNI_CLASS)
+#define JNI_END()           ANDROID_JNI_END()
+#define JNI_START_NOTRY()   ANDROID_JNI_START_NOTRY(JNI_CLASS)
+#define JNI_END_NOTRY()     ANDROID_JNI_END_NOTRY()
+
+#define ANDROID_JNI_START_NOTRY(T)                                                                      \
     {                                                                                                   \
         using namespace jace::proxy;                                                                    \
-        boost_ext::auto_read_lock  __guard(boost_ext::AndroidJni<t>::inst().mtx());                     \
-        if (!boost_ext::AndroidJni<t>::inst().initialized()) {                                          \
+        boost_ext::auto_read_lock  __guard(AndroidJni::inst<T>().mtx());                                \
+        if (!AndroidJni::inst<T>().initialized()) {                                                     \
             BOOST_THROW_EXCEPTION(boost_ext::exception("JNI Not Initialized"));                         \
         }
 
 #define ANDROID_JNI_END_NOTRY()                                                                         \
     }
 
-#define ANDROID_JNI_START(t)                                                                            \
-    ANDROID_JNI_START_NOTRY(t)                                                                          \
+#define ANDROID_JNI_START(T)                                                                            \
+    ANDROID_JNI_START_NOTRY(T)                                                                          \
     try {
 
 #define ANDROID_JNI_END()                                                                               \
@@ -44,14 +55,14 @@
     }                                                                                                   \
     ANDROID_JNI_END_NOTRY()
 
+
 namespace boost_ext {
 using namespace boost;
 
-    template <typename T>
     class AndroidJni {
     public:
         AndroidJni() {}
-        ~AndroidJni() {
+        virtual ~AndroidJni() {
             auto_write_lock   guard(m_mtx);
             if (jace::getJavaVm()) {
                 try {
@@ -67,53 +78,39 @@ using namespace boost;
                     __android_log_print(ANDROID_LOG_FATAL, "AndroidJni", "Unhandled exception cleaning up");
                 }
             }
-            m_ctx.reset();
             m_loader.reset();
         }
 
         /** A static function for getting the singleton instance */
-        static AndroidJni& inst() { static AndroidJni _inst; return _inst; }
+        template <typename T>
+        static T& inst() { static T _inst; return _inst; }
 
         /** Returns the mutex so we can grab it in our scope macros */
         shared_mutex& mtx() { return m_mtx; }
 
-        /** Initializes the JNI environment with a specific JVM and a context */
-        virtual bool initialize(JavaVM *pJvm, shared_ptr<T> ctx = shared_ptr<T>()) {
+        /** Initializes the JNI environment with a specific JVM */
+        virtual bool initialize(JavaVM *pJvm = NULL) {
             auto_upgrade_lock           upGuard(m_mtx);
             if (jace::getJavaVm()) { return false; }
             /* Upgrade our lock to be a writeable one, and then set our values */
             auto_upgrade_unique_lock    guard(upGuard);
 
             try {
-                jace::setJavaVm(pJvm);
-                m_ctx = ctx;
+                if (pJvm) {
+                    /* We use the Vm that is passed in */
+                    m_loader.reset();
+                    jace::setJavaVm(pJvm);
+                } else {
+                    /* We create a new VM */
+                    m_loader.reset(new jace::DefaultVmLoader());
+                    jace::createVm(*m_loader, jace::OptionList(), false);
+                }
                 return true;
             } catch (std::exception& e) {
-                __android_log_print(ANDROID_LOG_FATAL, "AndroidJni", "Error setting VM: %s", e.what());
+                __android_log_print(ANDROID_LOG_FATAL, "AndroidJni", "Error initializing VM: %s", e.what());
                 return false;
             } catch (...) {
-                __android_log_print(ANDROID_LOG_FATAL, "AndroidJni", "Unhandled exception setting VM");
-                return false;
-            }
-        }
-
-        /** Initializes the JNI environment with a newly-created JVM */
-        virtual bool initialize(shared_ptr<T> ctx = shared_ptr<T>()) {
-            auto_upgrade_lock           upGuard(m_mtx);
-            if (jace::getJavaVm()) { return false; }
-            /* Upgrade our lock to be a writeable one, and then set our values */
-            auto_upgrade_unique_lock    guard(upGuard);
-
-            try {
-                m_loader.reset(new jace::DefaultVmLoader());
-                jace::createVm(*m_loader, jace::OptionList(), false);
-                m_ctx = ctx;
-                return true;
-            } catch (std::exception& e) {
-                __android_log_print(ANDROID_LOG_FATAL, "AndroidJni", "Error creating VM: %s", e.what());
-                return false;
-            } catch (...) {
-                __android_log_print(ANDROID_LOG_FATAL, "AndroidJni", "Unhandled exception creating VM");
+                __android_log_print(ANDROID_LOG_FATAL, "AndroidJni", "Unhandled exception initializing VM");
                 return false;
             }
         }
@@ -124,16 +121,9 @@ using namespace boost;
             return jace::getJavaVm();
         }
 
-        /** Returns the context */
-        shared_ptr<const T> ctx() {
-            auto_read_lock  guard(m_mtx);
-            return m_ctx;
-        }
-
     private:
         shared_mutex                        m_mtx;
         shared_ptr<jace::DefaultVmLoader>   m_loader;
-        shared_ptr<const T>                 m_ctx;
     };
 }
 
