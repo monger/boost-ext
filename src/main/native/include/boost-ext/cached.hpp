@@ -4,9 +4,12 @@
 #ifndef H_BOOST_EXT_CACHED
 #define H_BOOST_EXT_CACHED
 
+#define _CACHED_FX_EMPTY
+#define _CACHED_FX_STATIC static
+
 /* Calls a function and caches it in a static value (which is returned, if it is already set) */
-#define CACHED_FX(t, fx)            CACHED_FX_IMPL(,t,fx)
-#define CACHED_STATIC_FX(t, fx)     CACHED_FX_IMPL(static, t, fx)
+#define CACHED_FX(t, fx)            CACHED_FX_IMPL(_CACHED_FX_EMPTY, t, fx)
+#define CACHED_STATIC_FX(t, fx)     CACHED_FX_IMPL(_CACHED_FX_STATIC, t, fx)
 
 /* Macro which can be used in a header file to define a cached function */
 #define CACHED_FX_DEF(t, fx)        const t& fx()
