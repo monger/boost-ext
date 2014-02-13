@@ -20,8 +20,11 @@
     #define JNI_CLASS   boost_ext::AndroidJni
 #endif
 
+/** Call these macros to get/initialize the instance */
+#define JNI_INSTANCE()      boost_ext::AndroidJni::inst<JNI_CLASS>()
+#define JNI_INITIALIZE(...) JNI_INSTANCE().initialize(__VA_ARGS__)
+
 /** Call these macros to start/end a JVM section */
-#define JNI_INITIALIZE(...) boost_ext::AndroidJni::inst<JNI_CLASS>().initialize(__VA_ARGS__)
 #define JNI_START()         ANDROID_JNI_START(JNI_CLASS)
 #define JNI_END()           ANDROID_JNI_END()
 #define JNI_START_NOTRY()   ANDROID_JNI_START_NOTRY(JNI_CLASS)
