@@ -9,6 +9,16 @@
     <groupId>com.toonetown.maven</groupId>
     <artifactId>boost-ext</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <url>https://github.com/toonetown/boost-ext</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     
     <!-- Packaging is lib (but we are headers only) -->
     <packaging>lib</packaging>
