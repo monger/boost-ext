@@ -42,6 +42,7 @@ namespace JniThreadTest {
     static string getString(const string& p1) {
         JNI_START() {
             java::lang::String s1(p1);
+            this_thread::sleep(posix_time::seconds(1));
             return s1.substring(6, 11);
         } JNI_END()
     }
