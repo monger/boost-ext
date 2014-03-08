@@ -84,7 +84,7 @@ using namespace boost;
                 } else {
                     /* We create a new VM */
                     m_loader.reset(new jace::DefaultVmLoader());
-                    jace::createVm(*m_loader, jace::OptionList(), false);
+                    jace::createJavaVm(m_loader, jace::OptionList());
                 }
                 return true;
             } catch (std::exception& e) {
@@ -104,12 +104,7 @@ using namespace boost;
             auto_write_lock   guard(m_mtx);
             if (jace::getJavaVm()) {
                 try {
-                    /* Check if we created it (and should call destroy) or set it (and should call reset) */
-                    if (m_loader) {
-                        jace::destroyVm();
-                    } else {
-                        jace::resetJavaVm();
-                    }
+                    jace::resetJavaVm();
                 } catch (std::exception& e) {
                     JNI_LOGGER() << "Error cleaning up: " << e.what();
                 } catch (...) {
@@ -128,9 +123,9 @@ using namespace boost;
         ~Jni() {}
         
     private:
-        bool                                m_uninitialized;
-        shared_mutex                        m_mtx;
-        shared_ptr<jace::DefaultVmLoader>   m_loader;
+        bool            m_uninitialized;
+        shared_mutex    m_mtx;
+        jace::Loader    m_loader;
     };
 }
 
