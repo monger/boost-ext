@@ -62,38 +62,12 @@ using namespace boost;
             return jace::getJavaVm();
         }
         
-        /** Initializes this class.  Note, it is safe to call this multiple times */
-        bool initialize(JavaVM *pJvm = NULL) {
-            auto_upgrade_lock           upGuard(m_mtx);
+        bool initialize(JavaVM *pJvm) {
+            return initialize(pJvm, NULL);
+        }
 
-            /* Only initialize if we aren't already initialized, and have not been uninitialized */
-            if (jace::getJavaVm()) { return false; }
-            if (m_uninitialized) {
-                JNI_LOGGER() << "Cannot reinitialize VM";
-                return false;
-            }
-
-            /* Upgrade our lock to be a writeable one, and then set our values */
-            auto_upgrade_unique_lock    guard(upGuard);
-
-            try {
-                if (pJvm) {
-                    /* We use the Vm that is passed in */
-                    m_loader.reset();
-                    jace::setJavaVm(pJvm);
-                } else {
-                    /* We create a new VM */
-                    m_loader.reset(new jace::DefaultVmLoader());
-                    jace::createJavaVm(m_loader, jace::OptionList());
-                }
-                return true;
-            } catch (std::exception& e) {
-                JNI_LOGGER() << "Error initializing VM: " << e.what();
-                return false;
-            } catch (...) {
-                JNI_LOGGER() << "Unhandled exception initializing VM";
-                return false;
-            }
+        bool initialize(jace::OptionList *list) {
+            return initialize(NULL, list);
         }
         
         /** 
@@ -116,6 +90,45 @@ using namespace boost;
         
         /** Returns the mutex so we can grab it in our scope macros */
         shared_mutex& mtx() { return m_mtx; }
+
+    private:
+        /** Initializes this class.  Note, it is safe to call this multiple times */
+        bool initialize(JavaVM *pJvm = NULL, jace::OptionList *list = NULL) {
+            auto_upgrade_lock           upGuard(m_mtx);
+
+            /* Only initialize if we aren't already initialized, and have not been uninitialized */
+            if (jace::getJavaVm()) { return false; }
+            if (m_uninitialized) {
+                JNI_LOGGER() << "Cannot reinitialize VM";
+                return false;
+            }
+
+            /* Upgrade our lock to be a writeable one, and then set our values */
+            auto_upgrade_unique_lock    guard(upGuard);
+
+            try {
+                if (pJvm) {
+                    /* We use the Vm that is passed in */
+                    m_loader.reset();
+                    jace::setJavaVm(pJvm);
+                } else if (list) {
+                    /* We create a new VM with settings */
+                    m_loader.reset(new jace::DefaultVmLoader());
+                    jace::createJavaVm(m_loader, list);
+                } else {
+                    /* We create a new VM */
+                    m_loader.reset(new jace::DefaultVmLoader());
+                    jace::createJavaVm(m_loader, jace::OptionList());
+                }
+                return true;
+            } catch (std::exception& e) {
+                JNI_LOGGER() << "Error initializing VM: " << e.what();
+                return false;
+            } catch (...) {
+                JNI_LOGGER() << "Unhandled exception initializing VM";
+                return false;
+            }
+        }
         
     private:
         /* Constructors and destructors are private */
@@ -126,6 +139,7 @@ using namespace boost;
         bool            m_uninitialized;
         shared_mutex    m_mtx;
         jace::Loader    m_loader;
+
     };
 }
 
