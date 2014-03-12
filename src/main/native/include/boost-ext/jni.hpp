@@ -62,12 +62,12 @@ using namespace boost;
             return jace::getJavaVm();
         }
         
-        bool initialize(JavaVM *pJvm) {
-            return initialize(pJvm, NULL);
+        bool initialize(JavaVM *pJvm = NULL) {
+            return initialize(jace::OptionList(), pJvm);
         }
 
-        bool initialize(jace::OptionList *list) {
-            return initialize(NULL, list);
+        bool initialize(jace::OptionList list) {
+            return initialize(list, NULL);
         }
         
         /** 
@@ -93,7 +93,7 @@ using namespace boost;
 
     private:
         /** Initializes this class.  Note, it is safe to call this multiple times */
-        bool initialize(JavaVM *pJvm = NULL, jace::OptionList *list = NULL) {
+        bool initialize(jace::OptionList list, JavaVM *pJvm = NULL) {
             auto_upgrade_lock           upGuard(m_mtx);
 
             /* Only initialize if we aren't already initialized, and have not been uninitialized */
@@ -111,14 +111,10 @@ using namespace boost;
                     /* We use the Vm that is passed in */
                     m_loader.reset();
                     jace::setJavaVm(pJvm);
-                } else if (list) {
-                    /* We create a new VM with settings */
-                    m_loader.reset(new jace::DefaultVmLoader());
-                    jace::createJavaVm(m_loader, list);
                 } else {
                     /* We create a new VM */
                     m_loader.reset(new jace::DefaultVmLoader());
-                    jace::createJavaVm(m_loader, jace::OptionList());
+                    jace::createJavaVm(m_loader, list);
                 }
                 return true;
             } catch (std::exception& e) {
