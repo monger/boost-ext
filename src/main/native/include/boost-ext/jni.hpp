@@ -66,32 +66,6 @@ using namespace boost;
             return initialize(jace::OptionList(), pJvm);
         }
 
-        bool initialize(jace::OptionList list) {
-            return initialize(list, NULL);
-        }
-        
-        /** 
-         * Uninitializes this class.  Note, it is safe to call this multiple times, but you cannot call initialize 
-         * after uninitialization.
-         */
-        void uninitialize() {
-            auto_write_lock   guard(m_mtx);
-            if (jace::getJavaVm()) {
-                try {
-                    jace::resetJavaVm();
-                } catch (std::exception& e) {
-                    JNI_LOGGER() << "Error cleaning up: " << e.what();
-                } catch (...) {
-                    JNI_LOGGER() << "Unhandled exception cleaning up";
-                }
-                m_loader.reset();
-            }
-        }
-        
-        /** Returns the mutex so we can grab it in our scope macros */
-        shared_mutex& mtx() { return m_mtx; }
-
-    private:
         /** Initializes this class.  Note, it is safe to call this multiple times */
         bool initialize(jace::OptionList list, JavaVM *pJvm = NULL) {
             auto_upgrade_lock           upGuard(m_mtx);
@@ -125,6 +99,27 @@ using namespace boost;
                 return false;
             }
         }
+        
+        /** 
+         * Uninitializes this class.  Note, it is safe to call this multiple times, but you cannot call initialize 
+         * after uninitialization.
+         */
+        void uninitialize() {
+            auto_write_lock   guard(m_mtx);
+            if (jace::getJavaVm()) {
+                try {
+                    jace::resetJavaVm();
+                } catch (std::exception& e) {
+                    JNI_LOGGER() << "Error cleaning up: " << e.what();
+                } catch (...) {
+                    JNI_LOGGER() << "Unhandled exception cleaning up";
+                }
+                m_loader.reset();
+            }
+        }
+        
+        /** Returns the mutex so we can grab it in our scope macros */
+        shared_mutex& mtx() { return m_mtx; }
         
     private:
         /* Constructors and destructors are private */
