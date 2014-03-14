@@ -11,6 +11,7 @@
 #include "boost/utility.hpp"
 #include "boost-ext/auto_lock.hpp"
 #include "boost-ext/exception.hpp"
+#include "boost-ext/classes.hpp"
 
 /** Define this macro before including jni.hpp to use a different logger */
 #ifndef JNI_LOGGER
@@ -41,7 +42,7 @@ using namespace boost;
     class Jni : public noncopyable {
     public:
         /** Returns a singleton instance of the JNI class */
-        static Jni& inst() { static Jni _inst; return _inst; }
+        SINGLETON(Jni, inst)
 
         /** Returns whether or not the JNI environment has been initialized */
         bool initialized() {

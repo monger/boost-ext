@@ -12,6 +12,7 @@
 #include <string>
 #include "boost-ext/collections.hpp"
 #include "boost-ext/scoped_type.hpp"
+#include "boost-ext/classes.hpp"
 
 /** Macros which allow for arc functionality */
 #if __has_feature(objc_arc)
@@ -111,7 +112,7 @@ using namespace boost;
 
     /** Converter which converts IDs to strings using the NSO_CSTR macro */
     struct NSOStringConverter {
-        static NSOStringConverter& inst() { static NSOStringConverter _n; return _n; }
+        SINGLETON(NSOStringConverter, inst)
         std::string operator() (const id i) const { return NSO_CSTR(i); }
     };
     

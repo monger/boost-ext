@@ -6,6 +6,8 @@
 
 #include "boost/noncopyable.hpp"
 #include "boost/chrono/duration.hpp"
+#include "boost-ext/classes.hpp"
+
 namespace boost_ext {
 
     /** This abstract class can be extended in order to create a customized ticker */
@@ -31,9 +33,7 @@ namespace boost_ext {
     };
 
     /** Inline functions for getting the standard system ticker */
-    template <typename Clock>
-    inline clock_ticker<Clock>& clockTicker() { static clock_ticker<Clock> t; return t; }
-
+    template <typename Clock> inline SINGLETON(clock_ticker<Clock>, clockTicker)
     inline ticker& systemTicker() { return clockTicker<boost::chrono::high_resolution_clock>(); }
 }
 

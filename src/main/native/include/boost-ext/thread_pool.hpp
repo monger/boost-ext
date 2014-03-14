@@ -10,6 +10,8 @@
 #include "boost/asio.hpp"
 #include "boost/thread.hpp"
 
+#include "boost-ext/classes.hpp"
+
 #if !defined(BOOST_EXT_THREAD_POOL_DEFAULT_SIZE)
     #define BOOST_EXT_THREAD_POOL_DEFAULT_SIZE   5
 #endif
@@ -71,13 +73,10 @@ private:
 };
 
 /** Creates a singleton thread pool instance that is lazily initialized and will be cleaned up on exit */
-#define BOOST_EXT_THREAD_POOL_WITH_SIZE(n, t, s)                      \
-struct n : public boost::noncopyable {                                \
-    typedef boost::function<t()>    fx_t;                             \
-    static boost_ext::thread_pool<t>& inst() {                        \
-        static boost_ext::thread_pool<t> me(BOOST_STRINGIZE(n), s);   \
-        return me;                                                    \
-    }                                                                 \
+#define BOOST_EXT_THREAD_POOL_WITH_SIZE(n, t, s)                        \
+struct n : public boost::noncopyable {                                  \
+    typedef boost::function<t()>    fx_t;                               \
+    SINGLETON_A(boost_ext::thread_pool<t>, inst, BOOST_STRINGIZE(n), s) \
 }
 
 #define BOOST_EXT_THREAD_POOL(n, t) BOOST_EXT_THREAD_POOL_WITH_SIZE(n, t, BOOST_EXT_THREAD_POOL_DEFAULT_SIZE)
