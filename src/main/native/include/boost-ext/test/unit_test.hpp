@@ -22,6 +22,22 @@
 // ************************************************************************** //
 // **************           auto_test_unit_registrar           ************** //
 // ************************************************************************** //
+#define BOOST_TEST_PRINT_LOG_TYPE( the_type, var_name, transform)       \
+namespace boost { namespace test_tools {                                \
+template<>                                                              \
+struct print_log_value<the_type > {                                     \
+    void operator()( std::ostream& os, the_type const& var_name ) {     \
+        os << transform;                                                \
+    }                                                                   \
+};                                                                      \
+}}                                                                      \
+
+
+//____________________________________________________________________________//
+
+// ************************************************************************** //
+// **************           auto_test_unit_registrar           ************** //
+// ************************************************************************** //
 namespace boost_ext {
 namespace unit_test {
 namespace ut_detail {
