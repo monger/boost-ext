@@ -4,6 +4,11 @@
 #ifndef H_BOOST_EXT_ANDROID_LOG
 #define H_BOOST_EXT_ANDROID_LOG
 
+#include "boost-ext/platform_detect.hpp"
+#if (!_IS_OS_ANDROID_)
+    #error This file requires Android
+#endif
+
 #include <android/log.h>
 #include "boost/log/sinks/sync_frontend.hpp"
 #include "boost/log/sinks/basic_sink_backend.hpp"

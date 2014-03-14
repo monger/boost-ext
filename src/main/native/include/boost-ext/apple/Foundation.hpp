@@ -8,6 +8,11 @@
     #error This file can only be used when compiling for objective-c++
 #endif
 
+#include "boost-ext/platform_detect.hpp"
+#if (!_IS_OS_APPLE_)
+    #error This file requires either Mac OS X or iOS
+#endif
+
 #import <Foundation/Foundation.h>
 #include <string>
 #include "boost-ext/collections.hpp"
@@ -15,7 +20,7 @@
 #include "boost-ext/classes.hpp"
 
 /** Macros which allow for arc functionality */
-#if __has_feature(objc_arc)
+#if (__has_feature(objc_arc))
     #define __ARC(stmt)               stmt
     #define __NON_ARC(stmt)
     #define __ARC_OR(stmt1, stmt2)    stmt1

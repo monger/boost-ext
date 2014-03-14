@@ -4,6 +4,11 @@
 #ifndef H_BOOST_EXT_APPLE_IOKIT
 #define H_BOOST_EXT_APPLE_IOKIT
 
+#include "boost-ext/platform_detect.hpp"
+#if (!_IS_OS_MACOSX_)
+    #error This file requires Mac OS X
+#endif
+
 #include <IOKit/IOKitLib.h>
 #include "boost-ext/scoped_type.hpp"
 

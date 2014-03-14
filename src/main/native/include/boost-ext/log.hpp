@@ -13,9 +13,10 @@
 #include "boost/log/utility/setup/console.hpp"
 #include "boost/log/utility/setup/common_attributes.hpp"
 
+#include "boost-ext/platform_detect.hpp"
 #include "boost-ext/classes.hpp"
 
-#if defined(__ANDROID__)
+#if (_IS_OS_ANDROID_)
     /* Include our android-specific implementation */
     #include "boost-ext/android/android_log.hpp"
     #define SYSTEM_LOGGER   boost_ext::log::add_android_log
