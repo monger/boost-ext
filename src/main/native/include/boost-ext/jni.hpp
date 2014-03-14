@@ -49,12 +49,49 @@ using namespace boost;
             return jace::getJavaVm();
         }
         
+        /**
+         * You can call inititialize with either a jvm or an option list (or neither) - but not both.
+         */
         bool initialize(JavaVM *pJvm = NULL) {
-            return initialize(jace::OptionList(), pJvm);
+            return initialize(pJvm, jace::OptionList());
+        }
+        
+        bool initialize(const jace::OptionList& list) {
+            return initialize(NULL, list);
         }
 
-        /** Initializes this class.  Note, it is safe to call this multiple times */
-        bool initialize(jace::OptionList list, JavaVM *pJvm = NULL) {
+        /** 
+         * Uninitializes this class.  Note, it is safe to call this multiple times, but you cannot call initialize 
+         * after uninitialization.
+         */
+        void uninitialize() {
+            auto_write_lock   guard(m_mtx);
+            if (jace::getJavaVm()) {
+                try {
+                    jace::resetJavaVm();
+                } catch (std::exception& e) {
+                    JNI_LOGGER() << "Error cleaning up: " << e.what();
+                } catch (...) {
+                    JNI_LOGGER() << "Unhandled exception cleaning up";
+                }
+                m_loader.reset();
+            }
+        }
+        
+        /** Returns the mutex so we can grab it in our scope macros */
+        shared_mutex& mtx() { return m_mtx; }
+        
+    private:
+        /* Constructors and destructors are private */
+        Jni() : m_uninitialized(false) {}
+        ~Jni() {}
+
+        /** 
+         * Initializes this class.  Note, it is safe to call this multiple times, but only the first one will be 
+         * honored.  This is private to prevent people from unintentionally calling the function with BOTH a JavaVM
+         * AND an OptionList - the public functions above handle that restriction.
+         */
+        bool initialize(JavaVM *pJvm, const jace::OptionList& list) {
             auto_upgrade_lock           upGuard(m_mtx);
 
             /* Only initialize if we aren't already initialized, and have not been uninitialized */
@@ -85,33 +122,7 @@ using namespace boost;
                 JNI_LOGGER() << "Unhandled exception initializing VM";
                 return false;
             }
-        }
-        
-        /** 
-         * Uninitializes this class.  Note, it is safe to call this multiple times, but you cannot call initialize 
-         * after uninitialization.
-         */
-        void uninitialize() {
-            auto_write_lock   guard(m_mtx);
-            if (jace::getJavaVm()) {
-                try {
-                    jace::resetJavaVm();
-                } catch (std::exception& e) {
-                    JNI_LOGGER() << "Error cleaning up: " << e.what();
-                } catch (...) {
-                    JNI_LOGGER() << "Unhandled exception cleaning up";
-                }
-                m_loader.reset();
-            }
-        }
-        
-        /** Returns the mutex so we can grab it in our scope macros */
-        shared_mutex& mtx() { return m_mtx; }
-        
-    private:
-        /* Constructors and destructors are private */
-        Jni() : m_uninitialized(false) {}
-        ~Jni() {}
+        }    
         
     private:
         bool            m_uninitialized;
