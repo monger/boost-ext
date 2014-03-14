@@ -8,11 +8,7 @@
 #include "jace/DefaultVmLoader.h"
 #include "jace/OptionList.h"
 
-// #include "jace/proxy/java/lang/Throwable.h"
-// 
-// #include "boost/atomic.hpp"
 #include "boost/utility.hpp"
-#include "boost/shared_ptr.hpp"
 #include "boost-ext/auto_lock.hpp"
 #include "boost-ext/exception.hpp"
 
@@ -22,21 +18,12 @@
     #define JNI_LOGGER()   LOG(fatal)
 #endif
 
-// /** Define this macro before including jni.hpp to use your own (subclassed) JNI */
-// #ifndef JNI_CLASS
-//     #define JNI_CLASS   boost_ext::Jni
-// #endif
-// 
 /** Call these macros to get/initialize/uninitialize the instance */
 #define JNI()               boost_ext::Jni::inst()
 #define JNI_INITIALIZE(...) JNI().initialize(__VA_ARGS__)
 #define JNI_UNINITIALIZE()  JNI().uninitialize()
 
 /** Call these macros to start/end a JVM section */
-// #define JNI_START()         BOOST_EXT_JNI_START(JNI_CLASS)
-// #define JNI_END()           BOOST_EXT_JNI_END()
-// 
-
 #define JNI_START()                                                                                     \
     {                                                                                                   \
         using namespace jace::proxy;                                                                    \
