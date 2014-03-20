@@ -20,6 +20,7 @@
  *      _IS_ARCH_ARMV7S_   Set when building for armv7s    (-Dnative.arch=armv7s)
  *      _IS_ARCH_ARMV7_    Set when building for armv7     (-Dnative.arch=armv7)
  *      _IS_ARCH_ARMV6_    Set when building for armv6     (-Dnative.arch=armv6)
+ *      _IS_ARCH_ARM_      Set when building for arm       (-Dnative.arch=arm)
  *
  * In addition, the combination macros "_IS_<OS>_<ARCH>_" are also set where <OS> is the OS value and <ARCH> is the
  * architecture value.
@@ -114,8 +115,8 @@
         #define _IS_ARCH_ARMV7_             1
         #define _IS_ANDROID_ARMV7_          1
     #elif defined(__ARM_ARCH_5TE__)
-        #define _IS_ARCH_ARMV6_             1
-        #define _IS_ANDROID_ARMV6_          1
+        #define _IS_ARCH_ARM_               1
+        #define _IS_ANDROID_ARM_            1
     #else
         #error Unsupported Android Architecture
     #endif
@@ -154,6 +155,8 @@
     #define _NATIVE_ARCH_NAME_      armv7
 #elif _IS_ARCH_ARMV6_
     #define _NATIVE_ARCH_NAME_      armv6
+#elif _IS_ARCH_ARM_
+    #define _NATIVE_ARCH_NAME_      arm
 #else
     #error Unsupported Architecture
 #endif
