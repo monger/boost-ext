@@ -192,7 +192,7 @@
             <id>android</id>
             <activation><property><name>native.os</name><value>android</value></property></activation>
             <properties>
-                <jace.runtime-jar>${android.home}/platforms/${native.android.platform}/android.jar</jace.runtime-jar>
+                <jace.runtime-jar>${native.android.platformJar}</jace.runtime-jar>
             </properties>
         </profile>
         
