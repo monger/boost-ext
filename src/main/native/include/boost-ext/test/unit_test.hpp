@@ -1,4 +1,9 @@
-#include "boost/test/unit_test.hpp"
+#if defined(BOOST_TEST_MODULE) && !defined(BOOST_TEST_LINKED_EXECUTION)
+    #define BOOST_TEST_IGNORE_NON_ZERO_CHILD_CODE
+    #include "boost/test/included/unit_test.hpp"
+#else
+    #include "boost/test/unit_test.hpp"
+#endif
 #include "boost/test/parameterized_test.hpp"
 #include "boost-ext/collections.hpp"
 

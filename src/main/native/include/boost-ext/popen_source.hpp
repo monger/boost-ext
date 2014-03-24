@@ -24,22 +24,31 @@ namespace boost_ext { namespace iostreams {
         /** A wrapper around our FILE handle and the underlying file_descriptor_source */
         class popen_wrapper : noncopyable {
         public:
-            explicit popen_wrapper(const string& cmd) : m_stream(popen(cmd.c_str(), "r")), m_source() {
+            explicit popen_wrapper(const string& cmd) : m_stream(popen(cmd.c_str(), "r")), m_source(), m_status(-1) {
                 if (m_stream) { m_source.open(fileno(m_stream), never_close_handle); }
             }
-            ~popen_wrapper() {
-                m_source.close();
-                if (m_stream) { pclose(m_stream), m_stream = NULL; }
-            }
+            ~popen_wrapper() { close(); }
 
             /** Passes through to the underlying m_source */
             streamsize read(char* s, streamsize n) { return m_source.read(s, n); }
             streampos seek(stream_offset off, BOOST_IOS::seekdir way) { return m_source.seek(off, way); }
             bool is_open() const { return m_stream && m_source.is_open(); }
+            int return_status() {
+                /* Close this process - which means we wait for it to finish */
+                if (m_status == -1 && m_stream) { close(); }
+                return m_status;
+            }
+            
+        private:
+            void close() {
+                m_source.close();
+                if (m_stream) { m_status = pclose(m_stream), m_stream = NULL; }
+            }
 
         private:
             FILE*                   m_stream;
             file_descriptor_source  m_source;
+            int                     m_status;
         };
     }
 
@@ -65,6 +74,9 @@ namespace boost_ext { namespace iostreams {
         }
         bool is_open() const {
             return m_wrapped && m_wrapped->is_open();
+        }
+        int return_status() const {
+            return m_wrapped ? m_wrapped->return_status() : -1;
         }
 
     private:
