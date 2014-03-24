@@ -84,6 +84,14 @@
         </dependency>
         <dependency>
             <groupId>com.toonetown.maven.boost</groupId>
+            <artifactId>iostreams</artifactId>
+            <version>${version.boost}</version>
+            <type>lib</type>
+            <classifier>${native.oat.classifier}</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.toonetown.maven.boost</groupId>
             <artifactId>system</artifactId>
             <version>${version.boost}</version>
             <type>lib</type>
