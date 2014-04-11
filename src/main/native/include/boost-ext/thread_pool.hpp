@@ -11,6 +11,8 @@
 #include "boost/thread.hpp"
 #include "boost/chrono/duration.hpp"
 
+#include "boost-ext/classes.hpp"
+
 #if !defined(BOOST_EXT_THREAD_POOL_DEFAULT_SIZE)
     #define BOOST_EXT_THREAD_POOL_DEFAULT_SIZE   5
 #endif

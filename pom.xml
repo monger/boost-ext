@@ -65,10 +65,10 @@
             <version>${version.boost}</version>
         </dependency>
         
-        <!-- Boost test framework (and Boost::System and Boost::Thread) -->
+        <!-- Boost libraries needed for testing (Boost::System and Boost::Thread) -->
         <dependency>
-            <groupId>com.toonetown.maven.boost.test</groupId>
-            <artifactId>unit_test_framework</artifactId>
+            <groupId>com.toonetown.maven.boost</groupId>
+            <artifactId>log</artifactId>
             <type>lib</type>
             <classifier>${native.oat.classifier}</classifier>
             <version>${version.boost}</version>
@@ -76,10 +76,10 @@
         </dependency>
         <dependency>
             <groupId>com.toonetown.maven.boost</groupId>
-            <artifactId>log</artifactId>
+            <artifactId>iostreams</artifactId>
+            <version>${version.boost}</version>
             <type>lib</type>
             <classifier>${native.oat.classifier}</classifier>
-            <version>${version.boost}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -200,7 +200,7 @@
             <id>android</id>
             <activation><property><name>native.os</name><value>android</value></property></activation>
             <properties>
-                <jace.runtime-jar>${android.home}/platforms/${native.android.platform}/android.jar</jace.runtime-jar>
+                <jace.runtime-jar>${native.android.platformJar}</jace.runtime-jar>
             </properties>
         </profile>
         

@@ -3,11 +3,8 @@
  */
 
 /* 32-bit OS X doesn't have a JVM anymore - so don't do any of these tests */
-#if defined(__APPLE__)
-#include <TargetConditionals.h>
-#endif
-
-#if !(TARGET_OS_MAC) || defined(__x86_64__)
+#include "boost-ext/platform_detect.hpp"
+#if (!_IS_MACOSX_I386_)
 
 #include "boost-ext/test/unit_test.hpp"
 
@@ -90,4 +87,4 @@ BOOST_AUTO_TEST_CASE(testJniThreading) {
 /* Make sure you end the test suite last thing in the file. */
 BOOST_AUTO_TEST_SUITE_END ();
 
-#endif /* __APPLE__ && __i386__ */
+#endif /* (!_IS_MACOSX_I386_) */

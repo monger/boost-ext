@@ -4,6 +4,11 @@
 #ifndef H_BOOST_EXT_APPLE_CORE_FOUNDATION
 #define H_BOOST_EXT_APPLE_CORE_FOUNDATION
 
+#include "boost-ext/platform_detect.hpp"
+#if (!_IS_OS_APPLE_)
+    #error This file requires either Mac OS X or iOS
+#endif
+
 #include <CoreFoundation/CoreFoundation.h>
 #include "boost-ext/scoped_type.hpp"
 

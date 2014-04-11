@@ -13,7 +13,10 @@
 #include "boost/log/utility/setup/console.hpp"
 #include "boost/log/utility/setup/common_attributes.hpp"
 
-#if defined(__ANDROID__)
+#include "boost-ext/platform_detect.hpp"
+#include "boost-ext/classes.hpp"
+
+#if (_IS_OS_ANDROID_)
     /* Include our android-specific implementation */
     #include "boost-ext/android/android_log.hpp"
     #define SYSTEM_LOGGER   boost_ext::log::add_android_log
@@ -67,7 +70,7 @@ namespace log {
     public:
         typedef shared_ptr<sinks::sink> sink_ptr;
         
-        static Logger& get() { static Logger _i; return _i; }
+        SINGLETON(Logger, get);
         
         void setLevel(int lvl) {
             core::get()->set_filter(boost::log::trivial::severity >= lvl);
