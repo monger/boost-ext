@@ -9,6 +9,7 @@
 #include "boost/make_shared.hpp"
 #include "boost/asio.hpp"
 #include "boost/thread.hpp"
+#include "boost/chrono/duration.hpp"
 
 #if !defined(BOOST_EXT_THREAD_POOL_DEFAULT_SIZE)
     #define BOOST_EXT_THREAD_POOL_DEFAULT_SIZE   5
@@ -25,11 +26,10 @@
 
 namespace boost_ext {
 
-template<typename T>
 class thread_pool : public boost::noncopyable {
 
 public:
-    typedef boost::function<T()>    fx_t;
+    typedef boost::function<void(const boost::system::error_code&)> fx_handler;
     thread_pool(std::string name = "", int numThreads = BOOST_EXT_THREAD_POOL_DEFAULT_SIZE) : m_name(name),
                                                                                               m_work(m_service) {
         if (name.size() > 0) { m_qualifier = " (" + name + ")"; }
@@ -49,7 +49,8 @@ public:
     }
 
     /** Posts work to the pool, and returns the associated future */
-    boost::future<T> post(fx_t& asyncFx) {
+    template<typename T>
+    boost::future<T> post(boost::function<T()>& asyncFx) {
         BOOST_EXT_THREAD_POOL_LOG(trace) << "Posting task" << m_qualifier;
 
         /* Create a packaged task */
@@ -62,6 +63,12 @@ public:
         return boost::move(future);
     }
 
+    template<typename H, typename D>
+    void schedule(H& handler, D duration) {
+        boost::asio::basic_waitable_timer<boost::chrono::high_resolution_clock> timer(m_service, duration);
+        timer.async_wait(handler);
+    }
+
 private:
     std::string                     m_name;
     std::string                     m_qualifier;
@@ -71,16 +78,15 @@ private:
 };
 
 /** Creates a singleton thread pool instance that is lazily initialized and will be cleaned up on exit */
-#define BOOST_EXT_THREAD_POOL_WITH_SIZE(n, t, s)                      \
+#define BOOST_EXT_THREAD_POOL_WITH_SIZE(n, s)                      \
 struct n : public boost::noncopyable {                                \
-    typedef boost::function<t()>    fx_t;                             \
-    static boost_ext::thread_pool<t>& inst() {                        \
-        static boost_ext::thread_pool<t> me(BOOST_STRINGIZE(n), s);   \
+    static boost_ext::thread_pool& inst() {                        \
+        static boost_ext::thread_pool me(BOOST_STRINGIZE(n), s);   \
         return me;                                                    \
     }                                                                 \
 }
 
-#define BOOST_EXT_THREAD_POOL(n, t) BOOST_EXT_THREAD_POOL_WITH_SIZE(n, t, BOOST_EXT_THREAD_POOL_DEFAULT_SIZE)
+#define BOOST_EXT_THREAD_POOL(n) BOOST_EXT_THREAD_POOL_WITH_SIZE(n, BOOST_EXT_THREAD_POOL_DEFAULT_SIZE)
 
 }
 

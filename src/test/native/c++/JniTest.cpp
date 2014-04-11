@@ -20,7 +20,7 @@
 /* Create setup and teardown functions */
 struct JniFixture {
     boost::shared_ptr<jace::DefaultVmLoader> m_loader;
-    
+
 	JniFixture() {
 		/* Common setup before test cases here */
 	}
@@ -34,11 +34,11 @@ namespace JniThreadTest {
     using namespace std;
     using namespace boost;
     using namespace boost_ext;
-    
+
     typedef future<const string> FutureString;
-    
-    BOOST_EXT_THREAD_POOL_WITH_SIZE(MyThreadPool, const string, 10);
-    
+
+    BOOST_EXT_THREAD_POOL_WITH_SIZE(MyThreadPool, 10);
+
     static string getString(const string& p1) {
         JNI_START() {
             java::lang::String s1(p1);
@@ -46,12 +46,12 @@ namespace JniThreadTest {
             return s1.substring(6, 11);
         } JNI_END()
     }
-    
+
     static string getString_ptrs(shared_ptr<const string> pP1) { return getString(*pP1); }
-    
+
     static FutureString runFuture(const string& p1) {
         shared_ptr<const string> pP1(new string(p1));
-        MyThreadPool::fx_t asyncFx = bind(getString_ptrs, pP1);
+        boost::function<const string()> asyncFx = bind(getString_ptrs, pP1);
         return MyThreadPool::inst().post(asyncFx);
     }
 }
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(testJni) {
 }
 
 BOOST_AUTO_TEST_CASE(testJniThrow) {
-    JNI_START() {        
+    JNI_START() {
         java::lang::String s1("!");
         try {
             s1.substring(2);
