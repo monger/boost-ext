@@ -8,10 +8,13 @@
 #include "boost/noncopyable.hpp"
 #include "boost/make_shared.hpp"
 #include "boost/asio.hpp"
+#include "boost/asio/steady_timer.hpp"
 #include "boost/thread.hpp"
 #include "boost/chrono/duration.hpp"
+#include "boost/chrono/time_point.hpp"
 
 #include "boost-ext/classes.hpp"
+#include "boost-ext/log.hpp"
 
 #if !defined(BOOST_EXT_THREAD_POOL_DEFAULT_SIZE)
     #define BOOST_EXT_THREAD_POOL_DEFAULT_SIZE   5
@@ -27,6 +30,49 @@
 #endif
 
 namespace boost_ext {
+
+class scheduled_task : boost::noncopyable, public boost::enable_shared_from_this<scheduled_task> {
+public:
+    scheduled_task() : m_ptimer() {}
+    virtual void operator()() =0;
+    virtual void on_error(const boost::system::error_code& code) =0;
+
+    template<typename D>
+    void schedule(boost::asio::io_service& service, D duration) {
+        m_ptimer.reset(new boost::asio::steady_timer(service, duration));
+        m_ptimer->async_wait(boost::bind(&scheduled_task::handler, shared_from_this(), _1));
+    }
+
+
+    void handler(const boost::system::error_code& error) {
+        if (error) {
+            this->on_error(error);
+        } else {
+            (*this)();
+        }
+    }
+private:
+    boost::shared_ptr<boost::asio::steady_timer> m_ptimer;
+};
+
+template<typename F>
+class scheduled_functor : public scheduled_task {
+public:
+    scheduled_functor(F functor) {
+        m_functor = functor;
+    }
+
+    ~scheduled_functor() { }
+
+    void operator()() {
+        m_functor(boost::system::error_code());
+    }
+    void on_error(const boost::system::error_code& error) {
+        m_functor(error);
+    }
+private:
+    F m_functor;
+};
 
 class thread_pool : public boost::noncopyable {
 
@@ -65,13 +111,12 @@ public:
         return boost::move(future);
     }
 
-    template<typename H, typename D>
-    void schedule(H& handler, D duration) {
-        boost::asio::basic_waitable_timer<boost::chrono::high_resolution_clock> timer(m_service, duration);
-        timer.async_wait(handler);
+    template<typename D>
+    void schedule(boost::shared_ptr<scheduled_task> task, D duration) {
+        task->schedule(m_service, duration);
     }
 
-private:
+public:
     std::string                     m_name;
     std::string                     m_qualifier;
     boost::asio::io_service         m_service;
